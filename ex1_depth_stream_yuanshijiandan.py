@@ -20,17 +20,13 @@ depth_stream.start()
 
 def get_depth():
     dmap = np.fromstring(depth_stream.read_frame().get_buffer_as_uint16(),dtype=np.uint16).reshape(240,320)
-    #dmap=transform.resize(dmap, (120,160))
-    print(dmap.dtype)
     d4d = np.uint8(dmap.astype(float) *255/ 2**12-1)
     d4d = cv2.cvtColor(d4d,cv2.COLOR_GRAY2RGB)
-    print(d4d.dtype)
     d4d = 255 - d4d    
     return dmap, d4d
 s=0
 done = False
 while not done:
-    key = cv2.waitKey(1)
     key = cv2.waitKey(1) & 255
     if key == 27:
         print "\tESC key detected!"
@@ -40,7 +36,6 @@ while not done:
         cv2.imwrite("ex1_"+str(s)+'.png', d4d)
         np.savetxt("ex1dmap_"+str(s)+'.out',dmap)
     dmap,d4d = get_depth()
-    print (dmap)
     cv2.imshow('depth', d4d)
 cv2.destroyAllWindows()
 depth_stream.stop()

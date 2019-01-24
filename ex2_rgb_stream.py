@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+#-*-coding:utf-8-*-
+'''
+这个版本解决了10帧读取视频和是否移动检测的问题。
+
+'''
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import numpy as np
@@ -25,6 +30,8 @@ s=0
 done=False
 rgbs=[]
 c=1
+pre_frame = None
+pre_frame2 = None
 timeF=10
 while not done:
     key = cv2.waitKey(1) & 255
@@ -37,6 +44,20 @@ while not done:
     cv2.imshow('rgb', rgb)
     if(c%timeF==0):
         cv2.imwrite('image/'+str(c) + '.jpg',rgb)
+        if pre_frame is None:
+            pre_frame = rgb
+        else:
+            img_delta = cv2.absdiff(pre_frame, rgb)
+            thresh = cv2.threshold(img_delta, 25, 255, cv2.THRESH_BINARY)[1]
+            thresh = cv2.dilate(thresh, None, iterations=2)
+            image, contours, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            for cd in contours:
+                if cv2.contourArea(cd) < 1:
+                    continue
+                else:
+                    print("----------canima0.0")
+                    break
+            pre_frame = rgb
     	cv2.imshow('rgb10', rgb)
     c=c+1
 cv2.destroyAllWindows()
